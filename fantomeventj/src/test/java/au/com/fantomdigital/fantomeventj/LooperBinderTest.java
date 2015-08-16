@@ -133,7 +133,7 @@ public class LooperBinderTest extends TestCase {
                 _satellite.dispatchEvent(event, this);
             }
 
-            assertEquals(101, _handled);
+            assertEquals(11, _handled);
         } catch (NoSuchMethodException e) {
             System.out.println("testDispatchEvent() NoSuchMethodException");
             assertFalse(true);
