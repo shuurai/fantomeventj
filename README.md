@@ -7,12 +7,16 @@ Based on the pros of Guava, Flex, and observer pattern, fantomeventj specializes
 
 *For usage instructions please see [the website][1].*
 
+૮( ᵒ̌ૢཪᵒ̌ૢ )ა
 
+!!! Sample and Unit test are still being added, so please bear with me until the next commits.
 
 Download
 --------
 
 Downloadable .jars can be found on the [GitHub download page][2].
+
+!!! Still updating some logic so maven hasn't been updated yet!
 
 You can also depend on the .jar through Maven:
 ```xml
