@@ -16,51 +16,20 @@
 
 package au.com.fantomdigital.fantomeventj;
 
-import java.util.UUID;
-
 /*
- * BaseEvent: The basic event for the traversal.
- * Every custom event must have its own class. The name must match the class name.
- *
  * Project: fantomeventj
- *
  * @author sfdi
- * @date 16/08/15
+ * @date 17/08/15
  */
-public class BaseEvent implements IBaseEvent {
-    /** Object sporting the handler method. */
-    final private Object _target;
-    /** Event name */
-    final private String _name;
-
+public class TestEvent extends BaseEvent {
     /**
      * Creates a new base event.
      * Variables can not be changed once instantiated for concurrency compatibility.
      *
      * @param eventName the name of the event
-     * @param target object broadcasting the BaseEvent.
+     * @param target    object broadcasting the BaseEvent.
      */
-    public BaseEvent(String eventName, Object target) {
-        this._name = eventName;
-        this._target = target;
-    }
-
-    /** String representation */
-    @Override public String toString() {
-        return "[BaseEvent " + _name + "]";
-    }
-
-    /** Get targets */
-    public Object getTarget() {
-        return _target;
-    }
-
-    /**
-     * Get name
-     *
-     * @return
-     */
-    public String getName() {
-        return _name;
+    public TestEvent(String eventName, Object target) {
+        super(eventName, target);
     }
 }

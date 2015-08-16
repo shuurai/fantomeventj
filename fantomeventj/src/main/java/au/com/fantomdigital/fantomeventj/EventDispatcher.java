@@ -131,6 +131,8 @@ public class EventDispatcher implements IEventDispatcher {
             }
         }
 
+        Boolean found = false;
+
         // check if same one exist
         for (Iterator<EventListener> its = setListeners.iterator(); its.hasNext();){
             EventListener foundListener = its.next();
@@ -141,10 +143,12 @@ public class EventDispatcher implements IEventDispatcher {
             // hash code should be the same
             if(listener.hashCode() == foundListener.hashCode()) {
                 // if class is the same, target must be correct and if method is the same, ignore
-            } else {
-                // add if not found
-                setListeners.add(listener);
+                found = true;
             }
+        }
+
+        if(!found) {
+            setListeners.add(listener);
         }
     }
 
@@ -187,6 +191,26 @@ public class EventDispatcher implements IEventDispatcher {
     }
 
     /**
+     * Find set of event listeners
+     *
+     * @param event
+     */
+    public int countEventListeners(IBaseEvent event) {
+        // binds the looper
+        _binder.bind(this);
+
+        Class type = event.getClass();
+        // find the listener set of this event
+        Set<EventListener> resultSet = _listeners.get(type);
+
+        if(resultSet != null) {
+            return resultSet.size();
+        }
+
+        return 0;
+    }
+
+    /**
      * Removes all event listeners of an event type
      *
      * @param event
@@ -197,6 +221,10 @@ public class EventDispatcher implements IEventDispatcher {
 
         Class type = event.getClass();
         Set<EventListener> setListeners = _listeners.remove(type);
+
+        // remove will remove the set for the given type
+
+        // removed totally
         for (Iterator<EventListener> its = setListeners.iterator(); its.hasNext();){
             EventListener removed = its.next();
             removed.invalidate();

@@ -1,99 +1,142 @@
-/*
- * Copyright (C) 2015 Fantom Digital Pty. Ltd.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package au.com.fantomdigital.fantomeventj;
 
-import org.junit.Test;
+import junit.framework.TestCase;
 
-import java.lang.reflect.Method;
+public class LooperBinderTest extends TestCase {
+    private static class RecordingLooperBinder implements LooperBinder {
+        boolean called = false;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-
-public class LooperBinderTest {
-
-  private static class RecordingLooperBinder implements LooperBinder {
-    boolean called = false;
-
-    @Override public void bind(EventDispatcher satellite) {
-      called = true;
+        @Override public void bind(EventDispatcher satellite) {
+            called = true;
+        }
     }
-  }
+
+    private RecordingLooperBinder _enforcer;
+    private EventDispatcher _satellite;
+    private int _handled;
+
+    public LooperBinderTest() {
+        //System.out.println("LooperBinderTest() test run");
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        //System.out.println("setUp");
+
+        _enforcer = new RecordingLooperBinder();
+        _satellite = new EventDispatcher(_enforcer, this);
+
+        _handled = 0;
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        //System.out.println("tearDown");
+
+        // clears
+        _satellite.removeAllEventListener();
+        _handled = 0;
+    }
 
     /**
      * Test Handler
      * @param event
      */
-    private void onTestHander(IBaseEvent event) {
-
+    private void onTestHandler(IBaseEvent event) {
+        _handled ++;
+        //System.out.println("onTestHandler() " + _handled);
     }
 
-  @Test public void enforerCalledForAddEventListener() {
-      RecordingLooperBinder enforcer = new RecordingLooperBinder();
-      EventDispatcher satellite = new EventDispatcher(enforcer, this);
+    /**
+     * Test 2 Handler
+     * @param event
+     */
+    private void onTest2Handler(IBaseEvent event) {
+        //System.out.println("onTest2Handler() " + _handled);
+    }
 
-      Class clz = this.getClass();
-      String handlerMethod = "onTestHander";
+    public void testAddEventListeners() {
+        String handlerMethod = "onTestHandler";
 
-      Method method = null;
-      try {
-          method = clz.getDeclaredMethod(handlerMethod);
+        try {
+            BaseEvent event = new BaseEvent("BaseEvent", this);
+            EventListener listener = new EventListener(event, this, handlerMethod);
 
-          BaseEvent event = new BaseEvent("TestEvent", this);
-          EventListener listener = new EventListener(event, this, method);
+            _satellite.addEventListener(event, listener);
+            assertEquals(1, _satellite.countEventListeners(event));
+        } catch (NoSuchMethodException e) {
+            System.out.println("testAddEventListeners() NoSuchMethodException");
+            assertFalse(true);
+        }
+    }
 
-          assertFalse(enforcer.called);
-          satellite.addEventListener(event, listener);
-          assertTrue(enforcer.called);
-      } catch (NoSuchMethodException e) {
-          assertFalse(enforcer.called);
-      }
-  }
+    public void testRemoveEventListeners() {
+        String handlerMethod = "onTestHandler";
 
-  @Test public void enforcerCalledForDispatchEvent() {
-      RecordingLooperBinder enforcer = new RecordingLooperBinder();
-      EventDispatcher satellite = new EventDispatcher(enforcer, this);
+        try {
+            BaseEvent event = new BaseEvent("BaseEvent", this);
+            TestEvent testEvent = new TestEvent("TestEvent", this);
+            EventListener listener = new EventListener(event, this, handlerMethod);
+            EventListener listener2 = new EventListener(testEvent, this, handlerMethod);
 
-      BaseEvent event = new BaseEvent("TestEvent", this);
+            _satellite.addEventListener(event, listener);
+            assertEquals(1, _satellite.countEventListeners(event));
 
-    assertFalse(enforcer.called);
-      satellite.dispatchEvent(event, this);
-    assertTrue(enforcer.called);
-  }
+            _satellite.removeEventListener(testEvent, listener2);
+            assertEquals(1, _satellite.countEventListeners(event));
+        } catch (NoSuchMethodException e) {
+            System.out.println("testRemoveEventListeners() NoSuchMethodException");
+            assertFalse(true);
+        }
+    }
 
-  @Test public void enforcerCalledForRemoveEventListener() {
-      RecordingLooperBinder enforcer = new RecordingLooperBinder();
-      EventDispatcher satellite = new EventDispatcher(enforcer, this);
+    public void testRemoveAllEventListeners() {
+        String handlerMethod = "onTestHandler";
+        String handlerMethod2 = "onTest2Handler";
 
-      Class clz = this.getClass();
-      String handlerMethod = "onTestHander";
+        try {
+            BaseEvent event = new BaseEvent("BaseEvent", this);
+            EventListener listener = new EventListener(event, this, handlerMethod);
+            EventListener listener2 = new EventListener(event, this, handlerMethod2);
 
-      Method method = null;
-      try {
-          method = clz.getDeclaredMethod(handlerMethod);
+            _satellite.addEventListener(event, listener);
+            assertEquals(1, _satellite.countEventListeners(event));
 
-          BaseEvent event = new BaseEvent("TestEvent", this);
-          EventListener listener = new EventListener(event, this, method);
+            _satellite.addEventListener(event, listener2);
+            assertEquals(2, _satellite.countEventListeners(event));
 
-          assertFalse(enforcer.called);
-          satellite.removeEventListener(event, listener);
-          assertTrue(enforcer.called);
-      } catch (NoSuchMethodException e) {
-          assertFalse(enforcer.called);
-      }
-  }
+            _satellite.removeAllEventListener();
+            assertEquals(0, _satellite.countEventListeners(event));
+        } catch (NoSuchMethodException e) {
+            System.out.println("testRemoveAllEventListeners() NoSuchMethodException");
+            assertFalse(true);
+        }
+    }
 
+    public void testDispatchEvent() {
+        String handlerMethod = "onTestHandler";
+
+        try {
+            BaseEvent event = new BaseEvent("BaseEvent", this);
+            EventListener listener = new EventListener(event, this, handlerMethod);
+
+            _satellite.addEventListener(event, listener);
+            assertEquals(1, _satellite.countEventListeners(event));
+
+            _satellite.dispatchEvent(event, this);
+
+            assertEquals(1, _handled);
+
+            for(int i = 0; i < 10; i++) {
+                _satellite.dispatchEvent(event, this);
+            }
+
+            assertEquals(101, _handled);
+        } catch (NoSuchMethodException e) {
+            System.out.println("testDispatchEvent() NoSuchMethodException");
+            assertFalse(true);
+        }
+    }
 }

@@ -19,6 +19,9 @@ package au.com.fantomdigital.fantomeventj;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
+
 /**
  * A listener that can map the target and method. This is to allow parsing of methods through functions
  * and call backs like AS3.
@@ -47,12 +50,12 @@ class EventListener {
   /** Should this handler receive events? */
   private boolean _valid = true;
 
-  EventListener(IBaseEvent event, Object target, Method method) {
+  EventListener(IBaseEvent event, Object target, String methodName) throws NoSuchMethodException {
     if (target == null) {
       throw new NullPointerException("EventHandler target cannot be null.");
     }
-    if (method == null) {
-      throw new NullPointerException("EventHandler method cannot be null.");
+    if (methodName == null) {
+      throw new NullPointerException("EventHandler method name cannot be null.");
     }
     if (event == null) {
       throw new NullPointerException("EventHandler event cannot be null.");
@@ -60,13 +63,26 @@ class EventListener {
 
     this._event = event;
     this._target = target;
-    this._method = method;
-    method.setAccessible(true);
 
-    // Compute hash code eagerly since we know it will be used frequently and we cannot estimate the runtime of the
-    // target's hashCode call.
-    final int prime = 31;
-      _hashCode = (prime + method.hashCode()) * prime + _target.hashCode();
+    Class targetClass = target.getClass();
+
+    Class[] params = new Class[1];
+    params[0] = IBaseEvent.class;
+
+    Method method = null;
+    try {
+        method = targetClass.getDeclaredMethod(methodName, params);
+
+        this._method = method;
+        method.setAccessible(true);
+
+        // Compute hash code eagerly since we know it will be used frequently and we cannot estimate the runtime of the
+        // target's hashCode call.
+        final int prime = 31;
+        _hashCode = (prime + method.hashCode()) * prime + _target.hashCode();
+    } catch (NoSuchMethodException e) {
+      throw(e);
+    }
   }
 
   public boolean isValid() {
@@ -87,8 +103,8 @@ class EventListener {
    *
    * @param event  event to handle
    * @throws java.lang.IllegalStateException  if previously invalidated.
-   * @throws java.lang.reflect.InvocationTargetException  if the wrapped method throws any {@link Throwable} that is not
-   *     an {@link Error} ({@code Error}s are propagated as-is).
+   * @throws java.lang.reflect.InvocationTargetException  if the method throws any {@link Throwable} that is not
+   *     an {@link Error} ({@code Error}s are propagated as it is).
    */
   public void handleEvent(Object event) throws InvocationTargetException {
     if (!_valid) {
