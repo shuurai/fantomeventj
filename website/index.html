@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>fantomeventJ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A threaded event dispatcher designed for Android">
+    <link href="static/bootstrap-combined.min.css" rel="stylesheet">
+
+    <link href="static/app.css" rel="stylesheet">
+    <link href="static/app-theme.css" rel="stylesheet">
+    <link href="http://fonts.googleapis.com/css?family=Roboto:400,300italic,100,100italic,300" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <!--[if lt IE 9]><script src="static/html5shiv.min.js"></script><![endif]-->
+  </head>
+  <body data-target=".content-nav">
+    <header>
+      <div class="container">
+        <div class="row">
+          <div class="span5">
+            <h1>fantomeventJ</h1>
+          </div>
+          <div class="span7">
+            <menu>
+              <ul>
+                <li><a href="https://github.com/shuurai/fantomeventj/archive/master.zip" class="menu download">Download <span class="version-tag">Latest</span></a></li>
+                <li><a href="http://github.com/shuurai/fantomeventj" data-title="View GitHub Project" class="menu github"><img src="static/icon-github.png" alt="GitHub"/></a></li>
+                <li><a href="http://github.com/shuurai" data-title="Fantom Digital Portal" class="menu square"><img src="static/icon-fd.png" alt="Fantom"/></a></li>
+              </ul>
+            </menu>
+          </div>
+      </div>
+    </header>
+    <section id="subtitle">
+      <div class="container">
+        <div class="row">
+          <div class="span12">
+            <h2>A threaded <b>event dispatcher</b> designed for Android</h2>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="body">
+      <div class="container">
+        <div class="row">
+          <div class="span9">
+            <h3 id="introduction">Introduction</h3>
+            <p>Back in the actionscript 3 flex days, it has a built in event dispatcher system that works very well.
+            'fantomeventj' is a threaded engine designed to work the same so to decouple parts of an application while still
+            allowing them to communicate with each other efficiently.</p>
+            <p>Based on the pros of Guava, Flex, and observer pattern, fantomeventj specializes the event engine for Android applications and
+            games.</p>
+
+            <h3 id="usage">Usage</h3>
+            <p>fantomeventJ is designed for people who are used to the paradigm in Flex. For any class that you wish to
+            have the event dispatching mechanism, simply extends the EventDispatcher class or create an instance of it as
+            a class component with
+             <pre class="prettyprint">EventDispatcher satellite = new EventDispatcher(LooperBinder, this);</pre> 
+            Because a satellite is standalone for every class instance to have its customizable logics. Since we bind
+            all satellite(s) to the main looper, essentially they all share the same thread queue so it will be quite
+            efficient.</p>
+
+            <h4>Listening</h4>
+            <p>Listening works just like how it was in Actionscript 3. However, I never liked the function passing using
+              lambda based call backs because it just looks ugly. Using <code>AccessibleObject</code> concepts, it is possible
+              to find a method by its name in String form.</p>
+            <p>To listen for the event published in the previous section we would just need a handler/listener function as following:</p>
+            <pre class="prettyprint">public void onExampleEventHandler(ExampleEvent event) {
+    // TODO: make the frog jump!
+}</pre>
+            <p>The name of the method can be anything you like just make sure you spell correctly.</p>
+            <p>In order to receive events, a class instance needs to listen to the corresponding satellite. If <code>this</code> refers to an instance of the class in which the previous method was present, we can register using the
+            following:</p>
+            <pre class="prettyprint">BaseEvent event = new BaseEvent("TestEventCodeName", this);
+EventListener listener = new EventListener(event, this, "onExampleEventHandler");
+satellite.addEventListener(event, handler);</pre>
+            <p><strong><code>'this'</code> is provided to both the event and EventListener object as the <code>target</code>. Use the <code>removeEventListener</code> method when appropriate to detach and listeners lingering in memory and threads. See the sample application,
+            <a href="http://github.com/shuurai/fantomeventj">available on GitHub</a>, for a complete example. However, the example is still be updated to a simple game scenario which I am still deciding on what game. (Flappy Bird maybe)</p>
+            <p>Unfortunately this is still not as straight forward as it could be compared to AS3 but I like it better because it is more in style as before, just 1 extra line. I might add a singleton helper function later to EventListener to
+            help create things.</p>
+
+            <h4>Dispatchment</h4>
+            <p>When things are listening on a particular event type (using class type instead of the name), any events dispatched
+              to the given satellite of a target, the event listeners will be triggered accordingly by the main looper.</p>
+            <p>To dispatch it is fairly easy and coherent as AS3 except for the extra <code>target</code> that we need to pass in just to make sure that the right events are fired and dispatched from the right satellite and to the right target.:</p>
+            <pre class="prettyprint">dispatchEvent(new BaseEvent("TestEventCodeName", this))</pre>
+            <p>All event should extend <code>BaseEvent<c/ode> and implement <code>IBaseEvent</code> to make sure events follow the same structure. Data objects can be added in later to allow passing of information through events when it needs to. Consult the sample later to see how it might work.</p>
+            <p>You may only have the same event with multiple different listeners, but you can only have one event for the same
+              listener on the same target. Repeated adding will just be ignored.</p>
+
+            <h4>Looper Binding</h4>
+            <p>In android, the main looper, custom looper, ui thread, can sometimes be confusing an ambiguous so it
+              is up to the user to really control where the event dispatcher is running on. It should definitely not
+              be running on the UIThread. By default the Looper.MainLooper is used.</p>
+            <pre class="prettyprint">// Start with the following
+EventDispatcher satellite = new Bus(LooperBinder.MAIN, this);</pre>
+            <p>If you are not concerned on which thread interaction is occurring, instantiate a dispatcher instance with
+            <code>LooperBinder.ANY</code>. You can also provide your own implementation of the
+            <code>LooperBinder</code> interface if you want in depth mechanism of thread management.</p>
+
+            <h3 id="download">Download</h3>
+            <p><a href="https://search.maven.org/remote_content?g=au.com.fantomdigital&a=fantomeventj&v=LATEST" class="dl version-href"><span class="version-tag">Latest</span> Package</a></p>
+            <p>The source code to fantomeventj, its sample, and this website is <a href="http://github.com/shuurai/fantomeventj">available on GitHub</a>.</p>
+
+            <h4>Gradle</h4>
+            <pre class="prettyprint">dependencies {
+  compile 'au.com.fantomdigital:fantomeventj:<span class="version">+</span>'
+}</pre>
+
+            <h4>Maven</h4>
+            <pre class="prettyprint">&lt;dependency>
+  &lt;groupId>au.com.fantomdigital&lt;/groupId>
+  &lt;artifactId>fantomeventj&lt;/artifactId>
+  &lt;version><span class="version pln"><em>[insert latest version]</em></span>&lt;/version>
+&lt;/dependency></pre>
+            <p>Once you've integrated fantomeventj, add the following lines to your <code>proguard-project.txt</code> file:</p>
+            <pre class="prettyprint">-keepattributes *Annotation*
+-keepclassmembers class ** {
+    @au.com.fantomdigital.fantomeventj.EventDispatcher public *;
+    @au.com.fantomdigital.fantomeventj.EventListener public *;
+}</pre>
+            <p>This ensures your annotated methods do not get filtered by ProGuard.</p>
+
+            <h3 id="contributing">Contributing</h3>
+            <p>If you would like to contribute code you can do so through GitHub by forking the repository and sending a pull request.</p>
+            <p>When submitting code, please make every effort to follow existing conventions and style in order to keep the code as readable as possible. Please also make sure your code compiles by running <code>mvn clean verify</code>.</p>
+            <p>Before your code can be accepted into the project you must also sign the <a href="https://docs.google.com/forms/d/1K4imhdeeClM46AEs9bwKbD6NJgRYutBCMXQxDCJp9Ss/viewform">FD Contributor License Agreement (CLA)</a>.</p>
+
+            <h3 id="license">License</h3>
+            <pre>Copyright 2015 Fantom Digital Pty. Ltd.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.</pre>
+          </div>
+          <div class="span3">
+            <div class="content-nav" data-spy="affix" data-offset-top="80">
+              <ul class="nav nav-tabs nav-stacked primary">
+                <li><a href="#introduction">Introduction</a></li>
+                <li><a href="#usage">Usage</a></li>
+                <li><a href="#download">Download</a></li>
+                <li><a href="#contributing">Contributing</a></li>
+                <li><a href="#license">License</a></li>
+              </ul>
+              <ul class="nav nav-pills nav-stacked secondary">
+                <li><a href="http://stackoverflow.com/questions/tagged/fantomeventJ?sort=active">StackOverflow</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="span12 logo">
+            <a href="http://www.fantomdigital.com.au"><img src="static/logo-fd.png" alt="Fantom Digital Pty. Ltd."/></a>
+          </div>
+        </div>
+      </div>
+    </section>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="static/bootstrap.min.js"></script>
+    <script src="static/jquery.smooth-scroll.min.js"></script>
+    <script src="static/jquery-maven-artifact.min.js"></script>
+    <script src="static/prettify.js"></script>
+    <script type="text/javascript">
+      $(function() {
+        // Syntax highlight code blocks.
+        prettyPrint();
+
+        // Spy on scroll position for real-time updating of current section.
+        $('body').scrollspy();
+
+        // Use smooth-scroll for internal links.
+        $('a').smoothScroll();
+
+        // Enable tooltips on the header nav image items.
+        $('.menu').tooltip({
+          placement: 'bottom',
+          trigger: 'hover',
+          container: 'body',
+          delay: {
+            show: 500,
+            hide: 0
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
