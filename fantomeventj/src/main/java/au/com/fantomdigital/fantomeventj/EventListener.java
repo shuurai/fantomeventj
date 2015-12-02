@@ -37,7 +37,7 @@ import static junit.framework.Assert.assertTrue;
  * @author sfdi
  * @date 15/08/15
  */
-class EventListener {
+public class EventListener {
 
   /** Object sporting the handler method. */
   private final Object _target;
@@ -50,7 +50,7 @@ class EventListener {
   /** Should this handler receive events? */
   private boolean _valid = true;
 
-  EventListener(IBaseEvent event, Object target, String methodName) throws NoSuchMethodException {
+  public EventListener(IBaseEvent event, Object target, String methodName) throws NoSuchMethodException {
     if (target == null) {
       throw new NullPointerException("EventHandler target cannot be null.");
     }
