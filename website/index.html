@@ -29,6 +29,7 @@
               </ul>
             </menu>
           </div>
+        </div>
       </div>
     </header>
     <section id="subtitle">
@@ -84,7 +85,7 @@ satellite.addEventListener(event, handler);</pre>
               to the given satellite of a target, the event listeners will be triggered accordingly by the main looper.</p>
             <p>To dispatch it is fairly easy and coherent as AS3 except for the extra <code>target</code> that we need to pass in just to make sure that the right events are fired and dispatched from the right satellite and to the right target.:</p>
             <pre class="prettyprint">dispatchEvent(new BaseEvent("TestEventCodeName", this))</pre>
-            <p>All event should extend <code>BaseEvent<c/ode> and implement <code>IBaseEvent</code> to make sure events follow the same structure. Data objects can be added in later to allow passing of information through events when it needs to. Consult the sample later to see how it might work.</p>
+            <p>All event should extend <code>BaseEvent</code> and implement <code>IBaseEvent</code> to make sure events follow the same structure. Data objects can be added in later to allow passing of information through events when it needs to. Consult the sample later to see how it might work.</p>
             <p>You may only have the same event with multiple different listeners, but you can only have one event for the same
               listener on the same target. Repeated adding will just be ignored.</p>
 
