@@ -52,5 +52,5 @@ License
 
 
 
- [1]: https://github.com/shuurai/fantomeventj
+ [1]: http://www.fantomdigital.com.au/libs/fantomeventj/
  [2]: https://github.com/shuurai/fantomeventj/downloads
