@@ -19,9 +19,6 @@ package au.com.fantomdigital.fantomeventj;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-
 /**
  * A listener that can map the target and method. This is to allow parsing of methods through functions
  * and call backs like AS3.
