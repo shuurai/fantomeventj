@@ -112,8 +112,8 @@ public class EventDispatcher implements IEventDispatcher {
      * @throws NullPointerException if the object is null.
      */
     public void addEventListener(IBaseEvent event, EventListener listener) {
-        if (_target == null || _target != listener.getTarget()) {
-            throw new IllegalStateException("Event dispatcher target " + _target + " does not match handler target " + listener.getTarget());
+        if (_target == null) {
+            throw new IllegalStateException("Event dispatcher target " + _target + " can not be null.");
         }
 
         // binds the looper
@@ -133,17 +133,18 @@ public class EventDispatcher implements IEventDispatcher {
 
         Boolean found = false;
 
-        // check if same one exist
+        // check if same one exist by event name and event class
         for (Iterator<EventListener> its = setListeners.iterator(); its.hasNext();){
             EventListener foundListener = its.next();
             //Object foundTarget = foundListener.getTarget();
             //Method foundMethod = foundListener.getMethod();
-            //IBaseEvent foundEvent = foundListener.getEvent();
+            IBaseEvent foundEvent = foundListener.getEvent();
 
             // hash code should be the same
-            if(listener.hashCode() == foundListener.hashCode()) {
+            if(event.getName().equals(foundEvent.getName()) && listener.hashCode() == foundListener.hashCode()) {
                 // if class is the same, target must be correct and if method is the same, ignore
                 found = true;
+                break;
             }
         }
 
@@ -159,8 +160,8 @@ public class EventDispatcher implements IEventDispatcher {
      * @param listener
      */
     public void removeEventListener(IBaseEvent event, EventListener listener) {
-        if (_target == null || _target != listener.getTarget()) {
-            throw new IllegalStateException("Event dispatcher target " + _target + " does not match handler target " + listener.getTarget());
+        if (_target == null) {
+            throw new IllegalStateException("Event dispatcher target " + _target + " can not be null.");
         }
 
         // binds the looper
@@ -173,11 +174,11 @@ public class EventDispatcher implements IEventDispatcher {
             EventListener foundListener = null;
             for (Iterator<EventListener> its = setListeners.iterator(); its.hasNext();){
                 foundListener = its.next();
-                Object foundTarget = foundListener.getTarget();
-                Method foundMethod = foundListener.getMethod();
+                //Object foundTarget = foundListener.getTarget();
+                //Method foundMethod = foundListener.getMethod();
                 IBaseEvent foundEvent = foundListener.getEvent();
 
-                if(foundEvent.getClass() == type && foundMethod == listener.getMethod()) {
+                if(event.getName().equals(foundEvent.getName()) && listener.hashCode() == foundListener.hashCode()) {
                     // found
                     break;
                 }
@@ -249,9 +250,32 @@ public class EventDispatcher implements IEventDispatcher {
         _listeners.clear();
     }
 
+
+    public void dispatchEvent(IBaseEvent event) {
+        _binder.bind(this);
+
+        Class type = event.getClass();
+        Set<EventListener> setListeners = _listeners.get(type);
+
+        // boolean dispatched = false;
+        if (setListeners != null && !setListeners.isEmpty()) {
+            // dispatched = true;
+            for (EventListener listener : setListeners) {
+                // enqueus the listeners with the same event name
+                if(listener.getEvent().getName().equals(event.getName())) {
+                    enqueueEvent(event, listener);
+                }
+            }
+        }
+
+        processQueue();
+    }
+
     /**
      * Dispatches an event and enqueues so to check all listeners and
      * execute accordingly, this is called externally
+     *
+     * sourceTarget is optional
      *
      * @param event
      * @param sourceTarget
@@ -262,20 +286,7 @@ public class EventDispatcher implements IEventDispatcher {
         }
 
         if(sourceTarget == _target) {
-            _binder.bind(this);
-
-            Class type = event.getClass();
-            Set<EventListener> setListeners = _listeners.get(type);
-
-            boolean dispatched = false;
-            if (setListeners != null && !setListeners.isEmpty()) {
-                dispatched = true;
-                for (EventListener listener : setListeners) {
-                    enqueueEvent(event, listener);
-                }
-            }
-
-            processQueue();
+            dispatchEvent(event);
         }
     }
 

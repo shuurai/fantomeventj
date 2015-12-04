@@ -6,7 +6,8 @@ public class LooperBinderTest extends TestCase {
     private static class RecordingLooperBinder implements LooperBinder {
         boolean called = false;
 
-        @Override public void bind(EventDispatcher satellite) {
+        //@Override
+        public void bind(EventDispatcher satellite) {
             called = true;
         }
     }

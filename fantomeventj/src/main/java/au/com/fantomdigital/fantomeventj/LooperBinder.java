@@ -37,14 +37,16 @@ public interface LooperBinder {
 
   /** A {@link LooperBinder} that does no verification. */
   LooperBinder ANY = new LooperBinder() {
-    @Override public void bind(EventDispatcher satellite) {
+    //@Override
+    public void bind(EventDispatcher satellite) {
       // Allow any looper.
     }
   };
 
   /** A {@link LooperBinder} that confines {@link EventDispatcher} methods to the main looper. */
   LooperBinder MAIN = new LooperBinder() {
-    @Override public void bind(EventDispatcher satellite) {
+    //@Override
+    public void bind(EventDispatcher satellite) {
       if (Looper.myLooper() != Looper.getMainLooper()) {
         throw new IllegalStateException("Event satellite " + satellite + " accessed from main looper " + Looper.myLooper());
       }

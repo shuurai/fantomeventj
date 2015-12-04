@@ -27,4 +27,5 @@ public interface IEventDispatcher {
     void removeAllEventListener(IBaseEvent event);
     void removeAllEventListener();
     void dispatchEvent(IBaseEvent event, Object sourceTarget);
+    void dispatchEvent(IBaseEvent event);
 }
