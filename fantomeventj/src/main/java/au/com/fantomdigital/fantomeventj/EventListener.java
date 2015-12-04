@@ -41,7 +41,7 @@ public class EventListener {
   /** Handler method. */
   private final Method _method;
   /** Event reference. */
-  private final IBaseEvent _event;
+  private final IBaseEvent _listeningEvent;
   /** Object hash code. */
   private final int _hashCode;
   /** Should this handler receive events? */
@@ -58,7 +58,7 @@ public class EventListener {
       throw new NullPointerException("EventHandler event cannot be null.");
     }
 
-    this._event = event;
+    this._listeningEvent = event;
     this._target = target;
 
     Class targetClass = target.getClass();
@@ -154,6 +154,6 @@ public class EventListener {
     }
 
     public IBaseEvent getEvent() {
-        return _event;
+        return _listeningEvent;
     }
 }

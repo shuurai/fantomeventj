@@ -45,6 +45,15 @@ public class BaseEvent implements IBaseEvent {
         this._target = target;
     }
 
+    /**
+     * Simple Event for base loading
+     * @param eventName
+     */
+    public BaseEvent(String eventName) {
+        this._name = eventName;
+        this._target = null;
+    }
+
     /** String representation */
     @Override public String toString() {
         return "[BaseEvent " + _name + "]";
