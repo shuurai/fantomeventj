@@ -62,9 +62,10 @@ public class EventListener {
     this._target = target;
 
     Class targetClass = target.getClass();
+    Class eventClass = event.getClass();
 
     Class[] params = new Class[1];
-    params[0] = IBaseEvent.class;
+    params[0] = eventClass;
 
     Method method = null;
     try {

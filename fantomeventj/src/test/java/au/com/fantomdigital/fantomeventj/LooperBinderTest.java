@@ -45,7 +45,7 @@ public class LooperBinderTest extends TestCase {
      * Test Handler
      * @param event
      */
-    private void onTestHandler(IBaseEvent event) {
+    private void onTestHandler(BaseEvent event) {
         _handled ++;
         //System.out.println("onTestHandler() " + _handled);
     }
@@ -54,7 +54,8 @@ public class LooperBinderTest extends TestCase {
      * Test 2 Handler
      * @param event
      */
-    private void onTest2Handler(IBaseEvent event) {
+    private void onTest2Handler(TestEvent event) {
+        _handled ++;
         //System.out.println("onTest2Handler() " + _handled);
     }
 
@@ -74,19 +75,19 @@ public class LooperBinderTest extends TestCase {
     }
 
     public void testRemoveEventListeners() {
-        String handlerMethod = "onTestHandler";
+        String handlerMethod = "onTest2Handler";
 
         try {
-            BaseEvent event = new BaseEvent("BaseEvent", this);
+            //BaseEvent event = new BaseEvent("BaseEvent", this);
             TestEvent testEvent = new TestEvent("TestEvent", this);
-            EventListener listener = new EventListener(event, this, handlerMethod);
+            //EventListener listener = new EventListener(event, this, handlerMethod);
             EventListener listener2 = new EventListener(testEvent, this, handlerMethod);
 
-            _satellite.addEventListener(event, listener);
-            assertEquals(1, _satellite.countEventListeners(event));
+            _satellite.addEventListener(testEvent, listener2);
+            assertEquals(1, _satellite.countEventListeners(testEvent));
 
             _satellite.removeEventListener(testEvent, listener2);
-            assertEquals(1, _satellite.countEventListeners(event));
+            assertEquals(0, _satellite.countEventListeners(testEvent));
         } catch (NoSuchMethodException e) {
             System.out.println("testRemoveEventListeners() NoSuchMethodException");
             assertFalse(true);
@@ -95,18 +96,18 @@ public class LooperBinderTest extends TestCase {
 
     public void testRemoveAllEventListeners() {
         String handlerMethod = "onTestHandler";
-        String handlerMethod2 = "onTest2Handler";
+        //String handlerMethod2 = "onTest2Handler";
 
         try {
             BaseEvent event = new BaseEvent("BaseEvent", this);
             EventListener listener = new EventListener(event, this, handlerMethod);
-            EventListener listener2 = new EventListener(event, this, handlerMethod2);
+            //EventListener listener2 = new EventListener(event, this, handlerMethod2);
 
             _satellite.addEventListener(event, listener);
             assertEquals(1, _satellite.countEventListeners(event));
 
-            _satellite.addEventListener(event, listener2);
-            assertEquals(2, _satellite.countEventListeners(event));
+            //_satellite.addEventListener(event, listener2);
+            //assertEquals(2, _satellite.countEventListeners(event));
 
             _satellite.removeAllEventListener();
             assertEquals(0, _satellite.countEventListeners(event));
@@ -117,10 +118,10 @@ public class LooperBinderTest extends TestCase {
     }
 
     public void testDispatchEvent() {
-        String handlerMethod = "onTestHandler";
+        String handlerMethod = "onTest2Handler";
 
         try {
-            BaseEvent event = new BaseEvent("BaseEvent", this);
+            TestEvent event = new TestEvent("TestEvent", this);
             EventListener listener = new EventListener(event, this, handlerMethod);
 
             _satellite.addEventListener(event, listener);
